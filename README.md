@@ -1,5 +1,5 @@
 # trietree
-TrieTree based on STL map/unordered_map and used for AC automaton
+TrieTree based on STL map/unordered_map/skiplist and used for AC automaton
 
 Compile and run (C++20)
 ```bash
