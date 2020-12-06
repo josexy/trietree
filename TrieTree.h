@@ -6,8 +6,10 @@
 #include <memory>
 #include <queue>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 
+#include "skiplist.h"
 /*
  Trie 树支持以下操作：
 * 1.对字符串进行排序：可以用 map红黑树 来存储节点而不是 unordered_map哈希表。
@@ -18,12 +20,15 @@
 * 按照节点的存储结构，分为有序Trie和无序Trie
 * */
 
-template <class T, bool Sorted = true>
+template <class T, int Type>
 struct TrieNodeData {
-    using self_type = TrieNodeData<T, Sorted>;
-    using node_type =
-        typename std::conditional<Sorted, std::map<T, self_type *>,
-                                  std::unordered_map<T, self_type *>>::type;
+    using self_type = TrieNodeData<T, Type>;
+
+    using node_type = typename std::tuple_element_t<
+        Type,
+        std::tuple<std::map<T, self_type *>, std::unordered_map<T, self_type *>,
+                   skiplist<T, self_type *>>>;
+
     using iterator = typename node_type::iterator;
     using const_iterator = typename node_type::const_iterator;
 
@@ -59,14 +64,14 @@ struct isChar<char> {
     static constexpr bool value = true;
 };
 
-template <class T = char, bool Sorted = true, T endMark = '\0'>
+template <class T = char, int Type = 0, T endMark = '\0'>
 class TrieTree {
    public:
-    using self_type = TrieTree<T, Sorted, endMark>;
+    using self_type = TrieTree<T, Type, endMark>;
     using self_reference_type = self_type &;
-    using self_const_reference_type = const self_reference_type;
+    using self_const_reference_type = const self_type &;
 
-    using node_type = TrieNodeData<T, Sorted>;
+    using node_type = TrieNodeData<T, Type>;
     using node_pointer = node_type *;
     using node_pointer_ref = node_pointer &;
     using node_itertor = typename node_type::iterator;
@@ -331,14 +336,14 @@ class TrieTree {
     std::vector<sequence_type> __vcLs;
 };
 
-template <class T = char, bool Sortd = true, T endMark = '\0'>
+template <class T = char, int Type = 1, T endMark = '\0'>
 class AC_automaton {
    public:
-    using node_type = TrieNodeData<T, Sortd>;
+    using node_type = TrieNodeData<T, Type>;
     using node_pointer = node_type *;
     using node_pointer_ref = node_pointer &;
 
-    using sequence_type = typename TrieTree<T, Sortd, endMark>::sequence_type;
+    using sequence_type = typename TrieTree<T, Type, endMark>::sequence_type;
     using const_reference_list_type = const sequence_type &;
     using reference_list_type = sequence_type &;
 
@@ -404,6 +409,6 @@ class AC_automaton {
     }
 
    private:
-    TrieTree<T, Sortd, endMark> trie;
+    TrieTree<T, Type, endMark> trie;
     node_pointer root;
 };
