@@ -4,11 +4,15 @@
 #include <regex>
 
 #include "TrieTree.h"
+#include "skiplist.h"
+#include "ClockTime.h"
 using namespace std;
+
+constexpr int MODE = 2;
 
 void test1() {
     // ac自动机 多模式串匹配
-    AC_automaton<char, false> aca;
+    AC_automaton<char, MODE> aca;
     vector<string> vs = {"aaa", "abcab"};
     vector<string> ss{"bcd", "ce", "ce", "ababa", "abce"};
 
@@ -19,7 +23,7 @@ void test1() {
 
 void test2() {
     // 整数序列
-    TrieTree<int, true, 0> trie;
+    TrieTree<int, MODE, 0> trie;
     trie.insert({1, 2, 4, 7, 6, 6, 1});
     trie.insert({200, 10, 21, 1293, 1, 53, 2});
     trie.insert({1, 2, 4, 5, 6, 6, 1});
@@ -50,13 +54,13 @@ auto regex_matche_word(const string &s) {
 
 void test3() {
     // 词频统计
-    ifstream ifs("text.txt");
+    ifstream ifs("txt.txt");
     string s;
     char c;
     while (~(c = ifs.get())) s += c;
     ifs.close();
 
-    TrieTree<> trie;
+    TrieTree<char, MODE> trie;
     auto words = regex_matche_word(s);
     unordered_map<string, int> cnt;
     for (auto word : words) {
@@ -73,13 +77,19 @@ void test3() {
     trie.erase(the);
     cout << trie.count("the") << endl;
     // for (auto xx : trie) cout << xx << " ";
-    for (auto it = trie.begin(); it != trie.end(); ++it) cout << *it << " ";
+    // for (auto it = trie.begin(); it != trie.end(); ++it) cout << *it << " ";
 }
 int main() {
-    test3();
-    cout << endl;
     test1();
     cout << endl;
     test2();
+    cout<<endl;
+    
+    ClockTime::start_timeclock();
+    test3();
+    cout << endl;
+    ClockTime::stop_timeclock();
+    cout << ClockTime::time_duration() << endl;
+
     return 0;
 }
