@@ -8,7 +8,7 @@
 #include "ClockTime.h"
 using namespace std;
 
-constexpr int MODE = 2;
+constexpr int MODE = 1;
 
 void test1() {
     // ac自动机 多模式串匹配
@@ -40,7 +40,7 @@ void test2() {
     }
 }
 
-auto regex_matche_word(const string &s) {
+auto regex_matche_word(const string& s) {
     regex rgx("(\\w+)");
     sregex_iterator first = sregex_iterator{s.begin(), s.end(), rgx};
     sregex_iterator last;
@@ -54,42 +54,52 @@ auto regex_matche_word(const string &s) {
 
 void test3() {
     // 词频统计
-    ifstream ifs("txt.txt");
+    ifstream ifs("text.txt");
     string s;
     char c;
     while (~(c = ifs.get())) s += c;
     ifs.close();
 
+    ClockTime::start_timeclock();
+
     TrieTree<char, MODE> trie;
     auto words = regex_matche_word(s);
     unordered_map<string, int> cnt;
-    for (auto word : words) {
-        trie.insert(word);
-    }
+
     trie.insert({'1', '2', '3'});
-    for (auto word : words) {
-        cnt[word] = trie.count(word);
-    }
-    for (auto [k, v] : cnt) {
-        cout << k << ":" << v << endl;
-    }
-    string the = "the";
-    trie.erase(the);
+    for (auto word : words) trie.insert(word);
+
+    for (auto word : words) cnt[word] = trie.count(word);
+
+    for (auto x : cnt) cout << x.first << ":" << x.second << endl;
+
+    for (auto word : words) trie.erase(word);
+
     cout << trie.count("the") << endl;
-    // for (auto xx : trie) cout << xx << " ";
+    ClockTime::stop_timeclock();
+    cout << ClockTime::time_duration() << endl;
+
     // for (auto it = trie.begin(); it != trie.end(); ++it) cout << *it << " ";
 }
+
+void test4() {
+    TrieTree<wchar_t, 1> t;
+    t.insert(L"你好世界");
+    t.insert(L"你好吗");
+    t.insert(L"linux大法好");
+    for (auto x : t) cout << x << endl;
+    t.clear();
+    t.insert(L"你好");
+    for (auto x : t) cout << x << endl;
+}
+
 int main() {
     test1();
     cout << endl;
     test2();
-    cout<<endl;
-    
-    ClockTime::start_timeclock();
-    test3();
     cout << endl;
-    ClockTime::stop_timeclock();
-    cout << ClockTime::time_duration() << endl;
 
+    test3();
+    test4();
     return 0;
 }
