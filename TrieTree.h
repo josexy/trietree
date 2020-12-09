@@ -1,7 +1,9 @@
 #pragma once
 
 #include <algorithm>
+#include <codecvt>
 #include <iostream>
+#include <locale>
 #include <map>
 #include <memory>
 #include <queue>
@@ -63,6 +65,17 @@ template <>
 struct isChar<char> {
     static constexpr bool value = true;
 };
+template <>
+struct isChar<wchar_t> {
+    static constexpr bool value = true;
+};
+
+// convert wstring to string
+std::ostream &operator<<(std::ostream &out, basic_string<wchar_t> ws) {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
+    out << convert.to_bytes(ws);
+    return out;
+}
 
 template <class T = char, int Type = 0, T endMark = '\0'>
 class TrieTree {
@@ -78,7 +91,7 @@ class TrieTree {
     using node_const_iterator = typename node_type::const_iterator;
 
     using sequence_type =
-        typename std::conditional<isChar<T>::value, std::string,
+        typename std::conditional<isChar<T>::value, std::basic_string<T>,
                                   std::vector<T>>::type;
     using const_reference_list_type = const sequence_type &;
     using reference_list_type = sequence_type &;
@@ -153,10 +166,6 @@ class TrieTree {
         x->isLeaf = true;
         x->count++;
         return x;
-    }
-    template <class C>
-    node_pointer insert(const C &c) {
-        return insert(std::begin(c), std::end(c));
     }
     node_pointer insert(const_reference_list_type s) {
         return insert(s.begin(), s.end());
